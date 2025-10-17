@@ -1,0 +1,39 @@
+import requests
+
+url = "https://graphhopper.com/api/1/route"
+key = "TU_TOKEN_AQUI"
+
+while True:
+    inicio = input("Ingrese el punto de partida (o 's' para salir): ")
+    if inicio.lower() in ["s", "salir"]:
+        print("Saliendo del programa...")
+        break
+
+    destino = input("Ingrese el destino: ")
+    if destino.lower() in ["s", "salir"]:
+        print("Saliendo del programa...")
+        break
+
+    params = {
+        "point": [inicio, destino],
+        "vehicle": "car",
+        "locale": "es",
+        "key": key
+    }
+
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    try:
+        distancia = data["paths"][0]["distance"] / 1000  # km
+        tiempo = data["paths"][0]["time"] / 60000  # minutos
+
+        print(f"\n🚗 Distancia total: {distancia:.2f} km")
+        print(f"🕒 Tiempo estimado: {tiempo:.2f} minutos")
+
+        print("\n📍 Instrucciones del viaje:")
+        for paso in data["paths"][0]["instructions"]:
+            print(f"→ {paso['text']}")
+
+    except KeyError:
+        print("❌ No se pudo obtener la ruta. Verifique las ubicaciones o el token.")
